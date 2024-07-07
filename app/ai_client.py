@@ -1,8 +1,9 @@
 import time
-from app.client import ChatClient
+from client import ChatClient
 import select
 import sys
 from openai import OpenAI
+
 
 def retry(retry_count=5, initial_delay=20):
     def decorator(func):
@@ -81,11 +82,8 @@ class AIClient(ChatClient):
         if self.test_mode:
             self.send_message("related message by lines")
         else:
-            system_prompt = f'''
-                    You are in a chat room. The following is a conversation. Respond to it:,
-                    recent message:
-                        {"\n".join(self.conversation_history[-self.interval:])}
-            '''
+            previous_chat_messages = '\n'.join(self.conversation_history[-self.interval:])
+            system_prompt = f"You are in a chat room. The following is a conversation. Respond to it: \n recent message: {previous_chat_messages}"
 
             model_response = self.call_open_ai_api(
                 system_prompt=system_prompt,
